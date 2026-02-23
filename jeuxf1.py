@@ -9,6 +9,7 @@ class Car:
     y: float
     angle: float
     speed: float
+    max_speed: float = 5.0
 
 @dataclass
 class Track:
@@ -24,7 +25,7 @@ screen = pygame.display.set_mode((800, 600))
 clock = pygame.time.Clock()
 
 track = Track(400, 300, center_x=400, center_y=300)
-car = Car(400, 200, 0, 0)
+car = Car(400, 200, 0, 0, 5.0)
 
 running = True
 while running:
@@ -51,24 +52,32 @@ while running:
     track_rect_int.center = track_rect_ext.center
     rayon_x_int = rayon_x_ext // 2
     rayon_y_int = rayon_y_ext // 2
+    
+    car_depart = car.x, car.y
+    lenght_sens = 20
+    pts_arrive_x = car.x + math.cos(math.radians(car.angle)) * lenght_sens
+    pts_arrive_y = car.y + math.sin(math.radians(car.angle)) * lenght_sens
 
+    
     pygame.draw.ellipse(screen, (255, 0, 0), track_rect_ext)
     pygame.draw.ellipse(screen, (30, 30, 30), track_rect_int)
-    
+
     pygame.draw.circle(screen, (0, 220, 0), (int(car.x), int(car.y)), 12)
-    
+    pygame.draw.line(screen, (0, 255, 0), car_depart, (pts_arrive_x, pts_arrive_y), 2)
     pygame.display.flip()
     
     if pygame.key.get_pressed()[pygame.K_UP]:
-        car.speed += 0.1
+        car.speed += 0.03
     if pygame.key.get_pressed()[pygame.K_DOWN]:
-        car.speed -= 0.1
+        car.speed -= 0.03
     if pygame.key.get_pressed()[pygame.K_LEFT]:
-        car.angle -= 2
+        car.angle -= 0.5
     if pygame.key.get_pressed()[pygame.K_RIGHT]:
-        car.angle += 2
-        
-        
+        car.angle += 0.5
+    if not pygame.key.get_pressed()[pygame.K_UP] and not pygame.key.get_pressed()[pygame.K_DOWN]:
+        car.speed *= 0.95
+    if car.speed > car.max_speed:
+        car.speed = car.max_speed
     prev_x, prev_y = car.x, car.y
             
     car.x += math.cos(math.radians(car.angle)) * 0.1*car.speed
